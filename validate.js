@@ -1,11 +1,15 @@
 import { z } from "zod";
 import { Hono } from "hono";
+import { serve } from "@hono/node-server";
 
 const app = new Hono();
 
 const schema = z.object({
   name: z.string(),
   age: z.number(),
+  address: z.object({
+    city: z.string()
+  })
 });
 
 const result = schema.safeParse({ name: "John", age: 30 });
@@ -24,18 +28,10 @@ app.post("/users", async (c) => {
 
   return c.json(result.data);
 });
-function fetch() {
-return fetch("http://localhost:3453/users", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ name: "Alice", age: 25 }),
-})
-  .then((res) => res.json())
-  .then((data) => console.log(data));
-}
 
-fetch();
+
+const port = 8334;
+serve({ fetch: app.fetch, port: port });
+console.log(`Server berjalan di http://localhost:${port}`);
 
 export default app;
